@@ -4,12 +4,13 @@ import { useWeb3React } from '@web3-react/core'
 import { ButtonEmpty } from 'components/Button'
 import Card, { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
-import CurrencyLogo from 'components/CurrencyLogo'
+import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import Modal from 'components/Modal'
 import { AutoRow, RowBetween } from 'components/Row'
 import { useState } from 'react'
 import styled from 'styled-components/macro'
-import { CloseIcon, ExternalLink, ThemedText, Z_INDEX } from 'theme'
+import { CloseIcon, ExternalLink, ThemedText } from 'theme'
+import { Z_INDEX } from 'theme/zIndex'
 
 import { useUnsupportedTokens } from '../../hooks/Tokens'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -24,7 +25,7 @@ const DetailsFooter = styled.div<{ show: boolean }>`
   max-width: 400px;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
-  color: ${({ theme }) => theme.deprecated_text2};
+  color: ${({ theme }) => theme.textSecondary};
   background-color: ${({ theme }) => theme.deprecated_advancedBG};
   z-index: ${Z_INDEX.deprecated_zero};
 
@@ -40,7 +41,7 @@ const StyledButtonEmpty = styled(ButtonEmpty)`
 const AddressText = styled(ThemedText.DeprecatedBlue)`
   font-size: 12px;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     font-size: 10px;
 `}
 `
@@ -83,7 +84,7 @@ export default function UnsupportedCurrencyFooter({
                   <OutlineCard key={token.address?.concat('not-supported')}>
                     <AutoColumn gap="10px">
                       <AutoRow gap="5px" align="center">
-                        <CurrencyLogo currency={token} size={'24px'} />
+                        <CurrencyLogo currency={token} size="24px" />
                         <ThemedText.DeprecatedBody fontWeight={500}>{token.symbol}</ThemedText.DeprecatedBody>
                       </AutoRow>
                       {chainId && (
@@ -107,7 +108,7 @@ export default function UnsupportedCurrencyFooter({
           </AutoColumn>
         </Card>
       </Modal>
-      <StyledButtonEmpty padding={'0'} onClick={() => setShowDetails(true)}>
+      <StyledButtonEmpty padding="0" onClick={() => setShowDetails(true)}>
         <ThemedText.DeprecatedBlue>
           <Trans>Read more about unsupported assets</Trans>
         </ThemedText.DeprecatedBlue>

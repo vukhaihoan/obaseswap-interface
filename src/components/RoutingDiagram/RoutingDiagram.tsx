@@ -1,15 +1,17 @@
 import { Trans } from '@lingui/macro'
+import { Protocol } from '@uniswap/router-sdk'
 import { Currency } from '@uniswap/sdk-core'
 import { FeeAmount } from '@uniswap/v3-sdk'
 import Badge from 'components/Badge'
-import CurrencyLogo from 'components/CurrencyLogo'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
+import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import Row, { AutoRow } from 'components/Row'
 import { RoutingDiagramEntry } from 'components/swap/SwapRoute'
 import { useTokenInfoFromActiveList } from 'hooks/useTokenInfoFromActiveList'
 import { Box } from 'rebass'
 import styled from 'styled-components/macro'
-import { ThemedText, Z_INDEX } from 'theme'
+import { ThemedText } from 'theme'
+import { Z_INDEX } from 'theme/zIndex'
 
 import { ReactComponent as DotLine } from '../../assets/svg/dot_line.svg'
 import { MouseoverTooltip } from '../Tooltip'
@@ -53,7 +55,7 @@ const DotColor = styled(DotLine)`
 `
 
 const OpaqueBadge = styled(Badge)`
-  background-color: ${({ theme }) => theme.deprecated_bg2};
+  background-color: ${({ theme }) => theme.backgroundInteractive};
   border-radius: 8px;
   display: grid;
   font-size: 12px;
@@ -67,10 +69,14 @@ const OpaqueBadge = styled(Badge)`
 const ProtocolBadge = styled(Badge)`
   background-color: ${({ theme }) => theme.deprecated_bg3};
   border-radius: 4px;
-  color: ${({ theme }) => theme.deprecated_text2};
+  color: ${({ theme }) => theme.textSecondary};
   font-size: 10px;
   padding: 2px 4px;
   z-index: ${Z_INDEX.sticky + 1};
+`
+
+const MixedProtocolBadge = styled(ProtocolBadge)`
+  width: 60px;
 `
 
 const BadgeText = styled(ThemedText.DeprecatedSmall)`
@@ -93,9 +99,9 @@ export default function RoutingDiagram({
     <Wrapper>
       {routes.map((entry, index) => (
         <RouteContainerRow key={index}>
-          <CurrencyLogo currency={tokenIn} size={'20px'} />
+          <CurrencyLogo currency={tokenIn} size="20px" />
           <Route entry={entry} />
-          <CurrencyLogo currency={tokenOut} size={'20px'} />
+          <CurrencyLogo currency={tokenOut} size="20px" />
         </RouteContainerRow>
       ))}
     </Wrapper>
@@ -109,9 +115,15 @@ function Route({ entry: { percent, path, protocol } }: { entry: RoutingDiagramEn
         <DotColor />
       </DottedLine>
       <OpaqueBadge>
-        <ProtocolBadge>
-          <BadgeText fontSize={12}>{protocol.toUpperCase()}</BadgeText>
-        </ProtocolBadge>
+        {protocol === Protocol.MIXED ? (
+          <MixedProtocolBadge>
+            <BadgeText fontSize={12}>V3 + V2</BadgeText>
+          </MixedProtocolBadge>
+        ) : (
+          <ProtocolBadge>
+            <BadgeText fontSize={12}>{protocol.toUpperCase()}</BadgeText>
+          </ProtocolBadge>
+        )}
         <BadgeText fontSize={14} style={{ minWidth: 'auto' }}>
           {percent.toSignificant(2)}%
         </BadgeText>

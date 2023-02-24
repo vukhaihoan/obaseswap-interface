@@ -1,6 +1,7 @@
-import { useAtom } from 'jotai'
-import { atomWithStorage, useAtomValue } from 'jotai/utils'
+import { atomWithStorage, useAtomValue, useUpdateAtom } from 'jotai/utils'
 import { createContext, ReactNode, useCallback, useContext } from 'react'
+import { useGate } from 'statsig-react'
+export { FeatureFlag } from './flags/featureFlags'
 
 interface FeatureFlagsContextType {
   isLoaded: boolean
@@ -9,7 +10,7 @@ interface FeatureFlagsContextType {
 
 const FeatureFlagContext = createContext<FeatureFlagsContextType>({ isLoaded: false, flags: {} })
 
-export function useFeatureFlagsContext(): FeatureFlagsContextType {
+function useFeatureFlagsContext(): FeatureFlagsContextType {
   const context = useContext(FeatureFlagContext)
   if (!context) {
     throw Error('Feature flag hooks can only be used by children of FeatureFlagProvider.')
@@ -22,14 +23,16 @@ export function useFeatureFlagsContext(): FeatureFlagsContextType {
 export const featureFlagSettings = atomWithStorage<Record<string, string>>('featureFlags', {})
 
 export function useUpdateFlag() {
-  const [featureFlags, setFeatureFlags] = useAtom(featureFlagSettings)
+  const setFeatureFlags = useUpdateAtom(featureFlagSettings)
 
   return useCallback(
     (featureFlag: string, option: string) => {
-      featureFlags[featureFlag] = option
-      setFeatureFlags(featureFlags)
+      setFeatureFlags((featureFlags) => ({
+        ...featureFlags,
+        [featureFlag]: option,
+      }))
     },
-    [featureFlags, setFeatureFlags]
+    [setFeatureFlags]
   )
 }
 
@@ -53,16 +56,18 @@ export enum BaseVariant {
   Enabled = 'enabled',
 }
 
-export enum FeatureFlag {
-  phase0 = 'phase0',
-}
-
-export function useBaseFlag(flag: string): BaseVariant {
-  switch (useFeatureFlagsContext().flags[flag]) {
+export function useBaseFlag(flag: string, defaultValue = BaseVariant.Control): BaseVariant {
+  const { value: statsigValue } = useGate(flag) // non-existent gates return false
+  const featureFlagsContext = useFeatureFlagsContext()
+  if (statsigValue) {
+    return BaseVariant.Enabled
+  }
+  switch (featureFlagsContext.flags[flag]) {
     case 'enabled':
       return BaseVariant.Enabled
     case 'control':
-    default:
       return BaseVariant.Control
+    default:
+      return defaultValue
   }
 }

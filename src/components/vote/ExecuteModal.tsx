@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
-import styled, { ThemeContext } from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
 import Circle from '../../assets/images/blue-loader.svg'
 import { useExecuteCallback } from '../../state/governance/hooks'
@@ -49,7 +49,7 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
   const [attempting, setAttempting] = useState<boolean>(false)
 
   // get theme for colors
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   // wrapper to reset state on modal close
   function wrappedOnDismiss() {
@@ -106,10 +106,10 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
             <StyledClosed onClick={wrappedOnDismiss} />
           </RowBetween>
           <ConfirmedIcon>
-            <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
+            <CustomLightSpinner src={Circle} alt="loader" size="90px" />
           </ConfirmedIcon>
-          <AutoColumn gap="100px" justify={'center'}>
-            <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn gap="100px" justify="center">
+            <AutoColumn gap="md" justify="center">
               <ThemedText.DeprecatedLargeHeader>
                 <Trans>Executing</Trans>
               </ThemedText.DeprecatedLargeHeader>
@@ -127,10 +127,10 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
             <StyledClosed onClick={wrappedOnDismiss} />
           </RowBetween>
           <ConfirmedIcon>
-            <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.deprecated_primary1} />
+            <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.accentAction} />
           </ConfirmedIcon>
-          <AutoColumn gap="100px" justify={'center'}>
-            <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn gap="100px" justify="center">
+            <AutoColumn gap="md" justify="center">
               <ThemedText.DeprecatedLargeHeader>
                 <Trans>Execution Submitted</Trans>
               </ThemedText.DeprecatedLargeHeader>

@@ -1,22 +1,17 @@
 import { Trans } from '@lingui/macro'
-import CopyHelper from 'components/AccountDetails/Copy'
 import Column from 'components/Column'
-import useTheme from 'hooks/useTheme'
-import { AlertOctagon } from 'react-feather'
-import styled from 'styled-components/macro'
+import { BlockedIcon } from 'components/TokenSafety/TokenSafetyIcon'
+import styled, { useTheme } from 'styled-components/macro'
 import { ExternalLink, ThemedText } from 'theme'
 
+import { CopyHelper } from '../../theme'
 import Modal from '../Modal'
 
 const ContentWrapper = styled(Column)`
   align-items: center;
   margin: 32px;
   text-align: center;
-`
-const WarningIcon = styled(AlertOctagon)`
-  min-height: 22px;
-  min-width: 22px;
-  color: ${({ theme }) => theme.deprecated_warning};
+  font-size: 12px;
 `
 const Copy = styled(CopyHelper)`
   font-size: 12px;
@@ -32,7 +27,7 @@ export default function ConnectedAccountBlocked(props: ConnectedAccountBlockedPr
   return (
     <Modal isOpen={props.isOpen} onDismiss={Function.prototype()}>
       <ContentWrapper>
-        <WarningIcon />
+        <BlockedIcon size="22px" />
         <ThemedText.DeprecatedLargeHeader lineHeight={2} marginBottom={1} marginTop={1}>
           <Trans>Blocked Address</Trans>
         </ThemedText.DeprecatedLargeHeader>
@@ -49,7 +44,14 @@ export default function ConnectedAccountBlocked(props: ConnectedAccountBlockedPr
         <ThemedText.DeprecatedMain fontSize={12}>
           <Trans>If you believe this is an error, please send an email including your address to </Trans>{' '}
         </ThemedText.DeprecatedMain>
-        <Copy iconSize={12} toCopy="compliance@uniswap.org" color={theme.deprecated_primary1} iconPosition="right">
+        <Copy
+          toCopy="compliance@uniswap.org"
+          fontSize={14}
+          iconSize={16}
+          gap={6}
+          color={theme.accentAction}
+          iconPosition="right"
+        >
           compliance@uniswap.org
         </Copy>
       </ContentWrapper>

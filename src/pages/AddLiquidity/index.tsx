@@ -1,15 +1,15 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
+import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
+import { TraceEvent } from '@uniswap/analytics'
+import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Percent } from '@uniswap/sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@uniswap/v3-sdk'
 import { useWeb3React } from '@web3-react/core'
-import { ElementName, Event, EventName } from 'components/AmplitudeAnalytics/constants'
-import { TraceEvent } from 'components/AmplitudeAnalytics/TraceEvent'
 import { sendEvent } from 'components/analytics'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
@@ -19,7 +19,7 @@ import {
   useV3MintActionHandlers,
   useV3MintState,
 } from 'state/mint/v3/hooks'
-import { ThemeContext } from 'styled-components/macro'
+import { useTheme } from 'styled-components/macro'
 
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText, ButtonYellow } from '../../components/Button'
 import { BlueCard, OutlineCard, YellowCard } from '../../components/Card'
@@ -86,7 +86,8 @@ export default function AddLiquidity() {
     tokenId,
   } = useParams<{ currencyIdA?: string; currencyIdB?: string; feeAmount?: string; tokenId?: string }>()
   const { account, chainId, provider } = useWeb3React()
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
+
   const toggleWalletModal = useToggleWalletModal() // toggle wallet when disconnected
   const expertMode = useIsExpertMode()
   const addTransaction = useTransactionAdder()
@@ -159,6 +160,7 @@ export default function AddLiquidity() {
 
   useEffect(() => {
     if (
+      parsedQs.minPrice &&
       typeof parsedQs.minPrice === 'string' &&
       parsedQs.minPrice !== leftRangeTypedValue &&
       !isNaN(parsedQs.minPrice as any)
@@ -167,6 +169,7 @@ export default function AddLiquidity() {
     }
 
     if (
+      parsedQs.maxPrice &&
       typeof parsedQs.maxPrice === 'string' &&
       parsedQs.maxPrice !== rightRangeTypedValue &&
       !isNaN(parsedQs.maxPrice as any)
@@ -431,24 +434,24 @@ export default function AddLiquidity() {
 
   const Buttons = () =>
     addIsUnsupported ? (
-      <ButtonPrimary disabled={true} $borderRadius="12px" padding={'12px'}>
+      <ButtonPrimary disabled={true} $borderRadius="12px" padding="12px">
         <ThemedText.DeprecatedMain mb="4px">
           <Trans>Unsupported Asset</Trans>
         </ThemedText.DeprecatedMain>
       </ButtonPrimary>
     ) : !account ? (
       <TraceEvent
-        events={[Event.onClick]}
-        name={EventName.CONNECT_WALLET_BUTTON_CLICKED}
+        events={[BrowserEvent.onClick]}
+        name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
         properties={{ received_swap_quote: false }}
-        element={ElementName.CONNECT_WALLET_BUTTON}
+        element={InterfaceElementName.CONNECT_WALLET_BUTTON}
       >
-        <ButtonLight onClick={toggleWalletModal} $borderRadius="12px" padding={'12px'}>
+        <ButtonLight onClick={toggleWalletModal} $borderRadius="12px" padding="12px">
           <Trans>Connect Wallet</Trans>
         </ButtonLight>
       </TraceEvent>
     ) : (
-      <AutoColumn gap={'md'}>
+      <AutoColumn gap="md">
         {(approvalA === ApprovalState.NOT_APPROVED ||
           approvalA === ApprovalState.PENDING ||
           approvalB === ApprovalState.NOT_APPROVED ||
@@ -754,7 +757,7 @@ export default function AddLiquidity() {
                                 fontSize={14}
                                 style={{ fontWeight: 500 }}
                                 textAlign="left"
-                                color={theme.deprecated_primaryText1}
+                                color={theme.accentAction}
                               >
                                 <Trans>
                                   This pool must be initialized before you can add liquidity. To initialize, select a
@@ -846,7 +849,7 @@ export default function AddLiquidity() {
                                 border: '1px solid',
                               }}
                             >
-                              <AutoColumn gap="8px" style={{ height: '100%' }}>
+                              <AutoColumn gap="sm" style={{ height: '100%' }}>
                                 <RowFixed>
                                   <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
                                   <ThemedText.DeprecatedYellow ml="12px" fontSize="15px">
@@ -859,9 +862,7 @@ export default function AddLiquidity() {
                                       Full range positions may earn less fees than concentrated positions. Learn more{' '}
                                       <ExternalLink
                                         style={{ color: theme.deprecated_yellow3, textDecoration: 'underline' }}
-                                        href={
-                                          'https://help.uniswap.org/en/articles/5434296-can-i-provide-liquidity-over-the-full-range-in-v3'
-                                        }
+                                        href="https://help.uniswap.org/en/articles/5434296-can-i-provide-liquidity-over-the-full-range-in-v3"
                                       >
                                         here
                                       </ExternalLink>

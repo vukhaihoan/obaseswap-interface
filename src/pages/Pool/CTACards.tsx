@@ -13,7 +13,7 @@ const CTASection = styled.section`
   gap: 8px;
   opacity: 0.8;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     grid-template-columns: auto;
     grid-template-rows: auto;
   `};
@@ -31,7 +31,7 @@ const CTA1 = styled(ExternalLink)`
   border: 1px solid ${({ theme }) => theme.deprecated_bg3};
 
   * {
-    color: ${({ theme }) => theme.deprecated_text1};
+    color: ${({ theme }) => theme.textPrimary};
     text-decoration: none !important;
   }
 
@@ -56,7 +56,7 @@ const CTA2 = styled(ExternalLink)`
   border: 1px solid ${({ theme }) => theme.deprecated_bg3};
 
   * {
-    color: ${({ theme }) => theme.deprecated_text1};
+    color: ${({ theme }) => theme.textPrimary};
     text-decoration: none !important;
   }
 
@@ -75,7 +75,7 @@ const HeaderText = styled(ThemedText.DeprecatedLabel)`
 
   font-weight: 400;
   font-size: 16px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     font-size: 16px;
   `};
 `
@@ -85,7 +85,7 @@ const ResponsiveColumn = styled(AutoColumn)`
   width: 100%;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     gap: 8px;
   `};
   justify-content: space-between;
@@ -97,7 +97,7 @@ export default function CTACards() {
 
   return (
     <CTASection>
-      <CTA1 href={'https://help.uniswap.org/en/articles/5391541-providing-liquidity-on-uniswap-v3'}>
+      <CTA1 href="https://support.uniswap.org/hc/en-us/categories/8122334631437-Providing-Liquidity-">
         <ResponsiveColumn>
           <HeaderText>
             <Trans>Learn about providing liquidity</Trans> ↗

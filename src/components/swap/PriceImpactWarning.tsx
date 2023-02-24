@@ -1,8 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@uniswap/sdk-core'
 import { OutlineCard } from 'components/Card'
-import { useContext } from 'react'
-import styled, { ThemeContext } from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 import { opacify } from 'theme/utils'
 
 import { ThemedText } from '../../theme'
@@ -13,7 +12,7 @@ import { formatPriceImpact } from './FormattedPriceImpact'
 
 const StyledCard = styled(OutlineCard)`
   padding: 12px;
-  border: 1px solid ${({ theme }) => opacify(24, theme.deprecated_error)};
+  border: 1px solid ${({ theme }) => opacify(24, theme.accentFailure)};
 `
 
 interface PriceImpactWarningProps {
@@ -21,11 +20,11 @@ interface PriceImpactWarningProps {
 }
 
 export default function PriceImpactWarning({ priceImpact }: PriceImpactWarningProps) {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
 
   return (
     <StyledCard>
-      <AutoColumn gap="8px">
+      <AutoColumn gap="sm">
         <MouseoverTooltip
           text={
             <Trans>
@@ -36,11 +35,11 @@ export default function PriceImpactWarning({ priceImpact }: PriceImpactWarningPr
         >
           <RowBetween>
             <RowFixed>
-              <ThemedText.DeprecatedSubHeader color={theme.deprecated_error}>
+              <ThemedText.DeprecatedSubHeader color={theme.accentFailure}>
                 <Trans>Price impact warning</Trans>
               </ThemedText.DeprecatedSubHeader>
             </RowFixed>
-            <ThemedText.DeprecatedLabel textAlign="right" fontSize={14} color={theme.deprecated_error}>
+            <ThemedText.DeprecatedLabel textAlign="right" fontSize={14} color={theme.accentFailure}>
               {formatPriceImpact(priceImpact)}
             </ThemedText.DeprecatedLabel>
           </RowBetween>

@@ -1,33 +1,45 @@
-import { initializeAnalytics, sendAnalyticsEvent, user } from 'components/AmplitudeAnalytics'
-import { CUSTOM_USER_PROPERTIES, EventName, PageName } from 'components/AmplitudeAnalytics/constants'
-import { Trace } from 'components/AmplitudeAnalytics/Trace'
+import {
+  getDeviceId,
+  initializeAnalytics,
+  OriginApplication,
+  sendAnalyticsEvent,
+  Trace,
+  user,
+} from '@uniswap/analytics'
+import { CustomUserProperties, getBrowser, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
+import { useWeb3React } from '@web3-react/core'
 import Loader from 'components/Loader'
+import { MenuDropdown } from 'components/NavBar/MenuDropdown'
 import TopLevelModals from 'components/TopLevelModals'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
-import { Phase0Variant, usePhase0Flag } from 'featureFlags/flags/phase0'
 import ApeModeQueryParamReader from 'hooks/useApeModeQueryParamReader'
-import { lazy, Suspense, useEffect } from 'react'
+import { Box } from 'nft/components/Box'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useIsDarkMode } from 'state/user/hooks'
+import { StatsigProvider, StatsigUser } from 'statsig-react'
 import styled from 'styled-components/macro'
 import { SpinnerSVG } from 'theme/components'
-import { getBrowser } from 'utils/browser'
+import { flexRowNoWrap } from 'theme/styles'
+import { Z_INDEX } from 'theme/zIndex'
+import { getEnvName, isProductionEnv } from 'utils/env'
+import { getCLS, getFCP, getFID, getLCP, Metric } from 'web-vitals'
 
 import { useAnalyticsReporter } from '../components/analytics'
 import ErrorBoundary from '../components/ErrorBoundary'
-import Header from '../components/Header'
-import Polling from '../components/Header/Polling'
+import { PageTabs } from '../components/NavBar'
+import NavBar from '../components/NavBar'
+import Polling from '../components/Polling'
 import Popups from '../components/Popups'
 import { useIsExpertMode } from '../state/user/hooks'
-import DarkModeQueryParamReader from '../theme/DarkModeQueryParamReader'
+import DarkModeQueryParamReader from '../theme/components/DarkModeQueryParamReader'
 import AddLiquidity from './AddLiquidity'
 import { RedirectDuplicateTokenIds } from './AddLiquidity/redirects'
 import { RedirectDuplicateTokenIdsV2 } from './AddLiquidityV2/redirects'
-import Earn from './Earn'
-import Manage from './Earn/Manage'
-import Explore from './Explore'
+import Landing from './Landing'
 import MigrateV2 from './MigrateV2'
 import MigrateV2Pair from './MigrateV2/MigrateV2Pair'
+import NotFound from './NotFound'
 import Pool from './Pool'
 import { PositionPage } from './Pool/PositionPage'
 import PoolV2 from './Pool/v2'
@@ -35,54 +47,85 @@ import PoolFinder from './PoolFinder'
 import RemoveLiquidity from './RemoveLiquidity'
 import RemoveLiquidityV3 from './RemoveLiquidity/V3'
 import Swap from './Swap'
-import { OpenClaimAddressModalAndRedirectToSwap, RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
+import { RedirectPathToSwapOnly } from './Swap/redirects'
+import Tokens from './Tokens'
 
 const TokenDetails = lazy(() => import('./TokenDetails'))
 const Vote = lazy(() => import('./Vote'))
+const NftExplore = lazy(() => import('nft/pages/explore'))
+const Collection = lazy(() => import('nft/pages/collection'))
+const Profile = lazy(() => import('nft/pages/profile/profile'))
+const Asset = lazy(() => import('nft/pages/asset/Asset'))
 
-const AppWrapper = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: flex-start;
-`
+// Placeholder API key. Actual API key used in the proxy server
+const ANALYTICS_DUMMY_KEY = '00000000000000000000000000000000'
+const ANALYTICS_PROXY_URL = process.env.REACT_APP_AMPLITUDE_PROXY_URL
+const COMMIT_HASH = process.env.REACT_APP_GIT_COMMIT_HASH
+initializeAnalytics(ANALYTICS_DUMMY_KEY, OriginApplication.INTERFACE, {
+  proxyUrl: ANALYTICS_PROXY_URL,
+  defaultEventName: SharedEventName.PAGE_VIEWED,
+  commitHash: COMMIT_HASH,
+  isProductionEnv: isProductionEnv(),
+})
 
 const BodyWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 120px 16px 0px 16px;
+  min-height: 100vh;
+  padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
   align-items: center;
   flex: 1;
-  z-index: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 4rem 8px 16px 8px;
-  `};
 `
 
-const HeaderWrapper = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
+const MobileBottomBar = styled.div`
+  z-index: ${Z_INDEX.sticky};
+  position: fixed;
+  display: flex;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100vw;
+  justify-content: space-between;
+  padding: 4px 8px;
+  height: ${({ theme }) => theme.mobileBottomBarHeight}px;
+  background: ${({ theme }) => theme.backgroundSurface};
+  border-top: 1px solid ${({ theme }) => theme.backgroundOutline};
+
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    display: none;
+  }
+`
+
+const HeaderWrapper = styled.div<{ transparent?: boolean }>`
+  ${flexRowNoWrap};
+  background-color: ${({ theme, transparent }) => !transparent && theme.backgroundSurface};
+  border-bottom: ${({ theme, transparent }) => !transparent && `1px solid ${theme.backgroundOutline}`};
   width: 100%;
   justify-content: space-between;
   position: fixed;
   top: 0;
-  z-index: 2;
+  z-index: ${Z_INDEX.dropdown};
 `
 
-const Marginer = styled.div`
-  margin-top: 5rem;
-`
-
-function getCurrentPageFromLocation(locationPathname: string): PageName | undefined {
-  switch (locationPathname) {
-    case '/swap':
-      return PageName.SWAP_PAGE
-    case '/vote':
-      return PageName.VOTE_PAGE
-    case '/pool':
-      return PageName.POOL_PAGE
-    case '/explore':
-      return PageName.EXPLORE_PAGE
+function getCurrentPageFromLocation(locationPathname: string): InterfacePageName | undefined {
+  switch (true) {
+    case locationPathname.startsWith('/swap'):
+      return InterfacePageName.SWAP_PAGE
+    case locationPathname.startsWith('/vote'):
+      return InterfacePageName.VOTE_PAGE
+    case locationPathname.startsWith('/pool'):
+      return InterfacePageName.POOL_PAGE
+    case locationPathname.startsWith('/tokens'):
+      return InterfacePageName.TOKENS_PAGE
+    case locationPathname.startsWith('/nfts/profile'):
+      return InterfacePageName.NFT_PROFILE_PAGE
+    case locationPathname.startsWith('/nfts/asset'):
+      return InterfacePageName.NFT_DETAILS_PAGE
+    case locationPathname.startsWith('/nfts/collection'):
+      return InterfacePageName.NFT_COLLECTION_PAGE
+    case locationPathname.startsWith('/nfts'):
+      return InterfacePageName.NFT_EXPLORE_PAGE
     default:
       return undefined
   }
@@ -104,44 +147,77 @@ const LazyLoadSpinner = () => (
 
 export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
-  const phase0Flag = usePhase0Flag()
 
   const { pathname } = useLocation()
   const currentPage = getCurrentPageFromLocation(pathname)
   const isDarkMode = useIsDarkMode()
   const isExpertMode = useIsExpertMode()
+  const [scrolledState, setScrolledState] = useState(false)
 
   useAnalyticsReporter()
-  initializeAnalytics()
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    setScrolledState(false)
   }, [pathname])
 
   useEffect(() => {
-    // TODO(zzmp): add web vitals event properties to app loaded event.
-    sendAnalyticsEvent(EventName.APP_LOADED)
-    user.set(CUSTOM_USER_PROPERTIES.BROWSER, getBrowser())
-    user.set(CUSTOM_USER_PROPERTIES.SCREEN_RESOLUTION_HEIGHT, window.screen.height)
-    user.set(CUSTOM_USER_PROPERTIES.SCREEN_RESOLUTION_WIDTH, window.screen.width)
+    sendAnalyticsEvent(SharedEventName.APP_LOADED)
+    user.set(CustomUserProperties.USER_AGENT, navigator.userAgent)
+    user.set(CustomUserProperties.BROWSER, getBrowser())
+    user.set(CustomUserProperties.SCREEN_RESOLUTION_HEIGHT, window.screen.height)
+    user.set(CustomUserProperties.SCREEN_RESOLUTION_WIDTH, window.screen.width)
+    getCLS(({ delta }: Metric) => sendAnalyticsEvent(SharedEventName.WEB_VITALS, { cumulative_layout_shift: delta }))
+    getFCP(({ delta }: Metric) => sendAnalyticsEvent(SharedEventName.WEB_VITALS, { first_contentful_paint_ms: delta }))
+    getFID(({ delta }: Metric) => sendAnalyticsEvent(SharedEventName.WEB_VITALS, { first_input_delay_ms: delta }))
+    getLCP(({ delta }: Metric) =>
+      sendAnalyticsEvent(SharedEventName.WEB_VITALS, { largest_contentful_paint_ms: delta })
+    )
   }, [])
 
   useEffect(() => {
-    user.set(CUSTOM_USER_PROPERTIES.DARK_MODE, isDarkMode)
+    user.set(CustomUserProperties.DARK_MODE, isDarkMode)
   }, [isDarkMode])
 
   useEffect(() => {
-    user.set(CUSTOM_USER_PROPERTIES.EXPERT_MODE, isExpertMode)
+    user.set(CustomUserProperties.EXPERT_MODE, isExpertMode)
   }, [isExpertMode])
+
+  useEffect(() => {
+    const scrollListener = () => {
+      setScrolledState(window.scrollY > 0)
+    }
+    window.addEventListener('scroll', scrollListener)
+    return () => window.removeEventListener('scroll', scrollListener)
+  }, [])
+
+  const isHeaderTransparent = !scrolledState
+
+  const { account } = useWeb3React()
+  const statsigUser: StatsigUser = useMemo(
+    () => ({
+      userID: getDeviceId(),
+      customIDs: { address: account ?? '' },
+    }),
+    [account]
+  )
 
   return (
     <ErrorBoundary>
       <DarkModeQueryParamReader />
       <ApeModeQueryParamReader />
-      <AppWrapper>
-        <Trace page={currentPage}>
-          <HeaderWrapper>
-            <Header />
+      <Trace page={currentPage}>
+        <StatsigProvider
+          user={statsigUser}
+          // TODO: replace with proxy and cycle key
+          sdkKey={process.env.REACT_APP_STATSIG_API_KEY ?? ''}
+          waitForInitialization={false}
+          options={{
+            environment: { tier: getEnvName() },
+          }}
+        >
+          <HeaderWrapper transparent={isHeaderTransparent}>
+            <NavBar />
           </HeaderWrapper>
           <BodyWrapper>
             <Popups />
@@ -150,19 +226,12 @@ export default function App() {
             <Suspense fallback={<Loader />}>
               {isLoaded ? (
                 <Routes>
-                  {phase0Flag === Phase0Variant.Enabled && (
-                    <>
-                      <Route path="/explore" element={<Explore />} />
-                      <Route
-                        path="/tokens/:tokenAddress"
-                        element={
-                          <Suspense fallback={<LazyLoadSpinner />}>
-                            <TokenDetails />
-                          </Suspense>
-                        }
-                      />
-                    </>
-                  )}
+                  <Route path="/" element={<Landing />} />
+
+                  <Route path="tokens" element={<Tokens />}>
+                    <Route path=":chainName" />
+                  </Route>
+                  <Route path="tokens/:chainName/:tokenAddress" element={<TokenDetails />} />
                   <Route
                     path="vote/*"
                     element={
@@ -172,12 +241,8 @@ export default function App() {
                     }
                   />
                   <Route path="create-proposal" element={<Navigate to="/vote/create-proposal" replace />} />
-                  <Route path="claim" element={<OpenClaimAddressModalAndRedirectToSwap />} />
-                  <Route path="uni" element={<Earn />} />
-                  <Route path="uni/:currencyIdA/:currencyIdB" element={<Manage />} />
 
                   <Route path="send" element={<RedirectPathToSwapOnly />} />
-                  <Route path="swap/:outputCurrency" element={<RedirectToSwap />} />
                   <Route path="swap" element={<Swap />} />
 
                   <Route path="pool/v2/find" element={<PoolFinder />} />
@@ -209,16 +274,63 @@ export default function App() {
                   <Route path="migrate/v2" element={<MigrateV2 />} />
                   <Route path="migrate/v2/:address" element={<MigrateV2Pair />} />
 
-                  <Route path="*" element={<RedirectPathToSwapOnly />} />
+                  <Route
+                    path="/nfts"
+                    element={
+                      <Suspense fallback={null}>
+                        <NftExplore />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/nfts/asset/:contractAddress/:tokenId"
+                    element={
+                      <Suspense fallback={null}>
+                        <Asset />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/nfts/profile"
+                    element={
+                      <Suspense fallback={null}>
+                        <Profile />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/nfts/collection/:contractAddress"
+                    element={
+                      <Suspense fallback={null}>
+                        <Collection />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/nfts/collection/:contractAddress/activity"
+                    element={
+                      <Suspense fallback={null}>
+                        <Collection />
+                      </Suspense>
+                    }
+                  />
+
+                  <Route path="*" element={<Navigate to="/not-found" replace />} />
+                  <Route path="/not-found" element={<NotFound />} />
                 </Routes>
               ) : (
                 <Loader />
               )}
             </Suspense>
-            <Marginer />
           </BodyWrapper>
-        </Trace>
-      </AppWrapper>
+          <MobileBottomBar>
+            <PageTabs />
+            <Box marginY="4">
+              <MenuDropdown />
+            </Box>
+          </MobileBottomBar>
+        </StatsigProvider>
+      </Trace>
     </ErrorBoundary>
   )
 }

@@ -2,8 +2,9 @@ import { Trans } from '@lingui/macro'
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
-import { ChangeEvent, Context, ReactNode, useCallback, useContext } from 'react'
-import styled, { DefaultTheme, ThemeContext } from 'styled-components/macro'
+import { ChangeEvent, ReactNode, useCallback } from 'react'
+import styled, { useTheme } from 'styled-components/macro'
+import { flexColumnNoWrap } from 'theme/styles'
 
 import useENS from '../../hooks/useENS'
 import { ExternalLink, ThemedText } from '../../theme'
@@ -12,7 +13,7 @@ import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
 
 const InputPanel = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
+  ${flexColumnNoWrap};
   position: relative;
   border-radius: 1.25rem;
   background-color: ${({ theme }) => theme.deprecated_bg1};
@@ -25,7 +26,7 @@ const ContainerRow = styled.div<{ error: boolean }>`
   justify-content: center;
   align-items: center;
   border-radius: 1.25rem;
-  border: 1px solid ${({ error, theme }) => (error ? theme.deprecated_red1 : theme.deprecated_bg2)};
+  border: 1px solid ${({ error, theme }) => (error ? theme.accentFailure : theme.backgroundInteractive)};
   transition: border-color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')},
     color 500ms ${({ error }) => (error ? 'step-end' : 'step-start')};
   background-color: ${({ theme }) => theme.deprecated_bg1};
@@ -44,7 +45,7 @@ const Input = styled.input<{ error?: boolean }>`
   width: 0;
   background-color: ${({ theme }) => theme.deprecated_bg1};
   transition: color 300ms ${({ error }) => (error ? 'step-end' : 'step-start')};
-  color: ${({ error, theme }) => (error ? theme.deprecated_red1 : theme.deprecated_text1)};
+  color: ${({ error, theme }) => (error ? theme.accentFailure : theme.textPrimary)};
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
@@ -87,7 +88,7 @@ export default function AddressInputPanel({
   onChange: (value: string) => void
 }) {
   const { chainId } = useWeb3React()
-  const theme = useContext(ThemeContext as Context<DefaultTheme>)
+  const theme = useTheme()
 
   const { address, loading, name } = useENS(value)
 
@@ -108,7 +109,7 @@ export default function AddressInputPanel({
         <InputContainer>
           <AutoColumn gap="md">
             <RowBetween>
-              <ThemedText.DeprecatedBlack color={theme.deprecated_text2} fontWeight={500} fontSize={14}>
+              <ThemedText.DeprecatedBlack color={theme.textSecondary} fontWeight={500} fontSize={14}>
                 {label ?? <Trans>Recipient</Trans>}
               </ThemedText.DeprecatedBlack>
               {address && chainId && (

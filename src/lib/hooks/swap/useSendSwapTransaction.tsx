@@ -1,20 +1,16 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { JsonRpcProvider, TransactionResponse } from '@ethersproject/providers'
+import type { JsonRpcProvider, TransactionResponse } from '@ethersproject/providers'
 // eslint-disable-next-line no-restricted-imports
 import { t, Trans } from '@lingui/macro'
+import { sendAnalyticsEvent } from '@uniswap/analytics'
+import { SwapEventName } from '@uniswap/analytics-events'
 import { Trade } from '@uniswap/router-sdk'
 import { Currency, TradeType } from '@uniswap/sdk-core'
-import { Trade as V2Trade } from '@uniswap/v2-sdk'
-import { Trade as V3Trade } from '@uniswap/v3-sdk'
+import { formatSwapSignedAnalyticsEventProperties } from 'lib/utils/analytics'
 import { useMemo } from 'react'
 import { calculateGasMargin } from 'utils/calculateGasMargin'
 import isZero from 'utils/isZero'
 import { swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
-
-type AnyTrade =
-  | V2Trade<Currency, Currency, TradeType>
-  | V3Trade<Currency, Currency, TradeType>
-  | Trade<Currency, Currency, TradeType>
 
 interface SwapCall {
   address: string
@@ -36,12 +32,14 @@ interface FailedCall extends SwapCallEstimate {
   error: Error
 }
 
+class InvalidSwapError extends Error {}
+
 // returns a function that will execute a swap, if the parameters are all valid
 export default function useSendSwapTransaction(
   account: string | null | undefined,
   chainId: number | undefined,
   provider: JsonRpcProvider | undefined,
-  trade: AnyTrade | undefined, // trade to execute, required
+  trade: Trade<Currency, Currency, TradeType> | undefined, // trade to execute, required
   swapCalls: SwapCall[]
 ): { callback: null | (() => Promise<TransactionResponse>) } {
   return useMemo(() => {
@@ -121,17 +119,31 @@ export default function useSendSwapTransaction(
             ...(value && !isZero(value) ? { value } : {}),
           })
           .then((response) => {
+            sendAnalyticsEvent(
+              SwapEventName.SWAP_SIGNED,
+              formatSwapSignedAnalyticsEventProperties({ trade, txHash: response.hash })
+            )
+            if (calldata !== response.data) {
+              sendAnalyticsEvent(SwapEventName.SWAP_MODIFIED_IN_WALLET, { txHash: response.hash })
+              throw new InvalidSwapError(
+                t`Your swap was modified through your wallet. If this was a mistake, please cancel immediately or risk losing your funds.`
+              )
+            }
             return response
           })
           .catch((error) => {
             // if the user rejected the tx, pass this along
             if (error?.code === 4001) {
-              throw new Error(t`Transaction rejected.`)
+              throw new Error(t`Transaction rejected`)
             } else {
               // otherwise, the error was unexpected and we need to convey that
               console.error(`Swap failed`, error, address, calldata, value)
 
-              throw new Error(t`Swap failed: ${swapErrorToUserReadableMessage(error)}`)
+              if (error instanceof InvalidSwapError) {
+                throw error
+              } else {
+                throw new Error(t`Swap failed: ${swapErrorToUserReadableMessage(error)}`)
+              }
             }
           })
       },

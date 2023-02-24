@@ -1,21 +1,35 @@
-import { ElementName, Event, EventName } from 'components/AmplitudeAnalytics/constants'
-import { TraceEvent } from 'components/AmplitudeAnalytics/TraceEvent'
+import { TraceEvent } from '@uniswap/analytics'
+import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import React from 'react'
+import { Check } from 'react-feather'
 import styled from 'styled-components/macro'
+import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
 
 import { ExternalLink } from '../../theme'
 
 const InfoCard = styled.button<{ isActive?: boolean }>`
-  background-color: ${({ theme, isActive }) => (isActive ? theme.deprecated_bg3 : theme.deprecated_bg2)};
+  background-color: ${({ theme }) => theme.backgroundInteractive};
   padding: 1rem;
   outline: none;
   border: 1px solid;
   border-radius: 12px;
   width: 100% !important;
   &:focus {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.deprecated_primary1};
+    background-color: ${({ theme }) => theme.hoverState};
   }
-  border-color: ${({ theme, isActive }) => (isActive ? 'transparent' : theme.deprecated_bg3)};
+  border-color: ${({ theme, isActive }) => (isActive ? theme.accentActive : 'transparent')};
+`
+
+const CheckIcon = styled(Check)`
+  ${flexColumnNoWrap};
+  height: 20px;
+  width: 20px;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.accentAction};
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
+    align-items: flex-end;
+  `};
 `
 
 const OptionCard = styled(InfoCard as any)`
@@ -28,65 +42,50 @@ const OptionCard = styled(InfoCard as any)`
 `
 
 const OptionCardLeft = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap};
+  ${flexColumnNoWrap};
   justify-content: center;
   height: 100%;
 `
 
-const OptionCardClickable = styled(OptionCard as any)<{ clickable?: boolean }>`
+const OptionCardClickable = styled(OptionCard as any)<{
+  active?: boolean
+  clickable?: boolean
+}>`
   margin-top: 0;
+  border: ${({ active, theme }) => active && `1px solid ${theme.accentActive}`};
   &:hover {
-    cursor: ${({ clickable }) => (clickable ? 'pointer' : '')};
-    border: ${({ clickable, theme }) => (clickable ? `1px solid ${theme.deprecated_primary1}` : ``)};
+    cursor: ${({ clickable }) => clickable && 'pointer'};
+    background-color: ${({ theme }) => theme.hoverState};
   }
   opacity: ${({ disabled }) => (disabled ? '0.5' : '1')};
 `
 
-const GreenCircle = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  justify-content: center;
-  align-items: center;
-
-  &:first-child {
-    height: 8px;
-    width: 8px;
-    margin-right: 8px;
-    background-color: ${({ theme }) => theme.deprecated_green1};
-    border-radius: 50%;
-  }
-`
-
-const CircleWrapper = styled.div`
-  color: ${({ theme }) => theme.deprecated_green1};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
 const HeaderText = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap};
-  color: ${(props) =>
-    props.color === 'blue' ? ({ theme }) => theme.deprecated_primary1 : ({ theme }) => theme.deprecated_text1};
-  font-size: 1rem;
-  font-weight: 500;
+  ${flexRowNoWrap};
+  align-items: center;
+  justify-content: center;
+  color: ${(props) => (props.color === 'blue' ? ({ theme }) => theme.accentAction : ({ theme }) => theme.textPrimary)};
+  font-size: 16px;
+  font-weight: 600;
 `
 
 const SubHeader = styled.div`
-  color: ${({ theme }) => theme.deprecated_text1};
+  color: ${({ theme }) => theme.textPrimary};
   margin-top: 10px;
   font-size: 12px;
 `
 
 const IconWrapper = styled.div<{ size?: number | null }>`
-  ${({ theme }) => theme.flexColumnNoWrap};
+  ${flexColumnNoWrap};
   align-items: center;
   justify-content: center;
+  padding-right: 12px;
   & > img,
   span {
-    height: ${({ size }) => (size ? size + 'px' : '24px')};
-    width: ${({ size }) => (size ? size + 'px' : '24px')};
+    height: ${({ size }) => (size ? size + 'px' : '28px')};
+    width: ${({ size }) => (size ? size + 'px' : '28px')};
   }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     align-items: flex-end;
   `};
 `
@@ -116,10 +115,10 @@ export default function Option({
 }) {
   const content = (
     <TraceEvent
-      events={[Event.onClick]}
-      name={EventName.WALLET_SELECTED}
+      events={[BrowserEvent.onClick]}
+      name={InterfaceEventName.WALLET_SELECTED}
       properties={{ wallet_type: header }}
-      element={ElementName.WALLET_TYPE_OPTION}
+      element={InterfaceElementName.WALLET_TYPE_OPTION}
     >
       <OptionCardClickable
         id={id}
@@ -130,22 +129,14 @@ export default function Option({
       >
         <OptionCardLeft>
           <HeaderText color={color}>
-            {isActive ? (
-              <CircleWrapper>
-                <GreenCircle>
-                  <div />
-                </GreenCircle>
-              </CircleWrapper>
-            ) : (
-              ''
-            )}
+            <IconWrapper size={size}>
+              <img src={icon} alt="Icon" />
+            </IconWrapper>
             {header}
           </HeaderText>
           {subheader && <SubHeader>{subheader}</SubHeader>}
         </OptionCardLeft>
-        <IconWrapper size={size}>
-          <img src={icon} alt={'Icon'} />
-        </IconWrapper>
+        {isActive && <CheckIcon />}
       </OptionCardClickable>
     </TraceEvent>
   )

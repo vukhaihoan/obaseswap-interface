@@ -1,16 +1,15 @@
 import { Trans } from '@lingui/macro'
 import { getWarningCopy, TOKEN_SAFETY_ARTICLE, Warning } from 'constants/tokenSafety'
-import { useTokenWarningColor } from 'hooks/useTokenWarningColor'
-import { AlertOctagon, AlertTriangle } from 'react-feather'
+import { useTokenWarningColor, useTokenWarningTextColor } from 'hooks/useTokenWarningColor'
+import { AlertTriangle, Slash } from 'react-feather'
 import { Text } from 'rebass'
 import styled from 'styled-components/macro'
 import { ExternalLink } from 'theme'
-import { Color } from 'theme/styled'
 
-const Label = styled.div<{ color: Color }>`
-  width: 284px;
-  padding: 12px 20px;
-  background-color: ${({ color }) => color + '1F'};
+const Label = styled.div<{ color: string; backgroundColor: string }>`
+  width: 100%;
+  padding: 12px 20px 16px;
+  background-color: ${({ backgroundColor }) => backgroundColor};
   border-radius: 16px;
   color: ${({ color }) => color};
 `
@@ -31,33 +30,41 @@ const Title = styled(Text)`
 const DetailsRow = styled.div`
   margin-top: 8px;
   font-size: 12px;
+  line-height: 16px;
   color: ${({ theme }) => theme.textSecondary};
 `
 
-type TokenWarningMessageProps = {
+const StyledLink = styled(ExternalLink)`
+  color: ${({ theme }) => theme.textSecondary};
+  font-weight: 700;
+`
+
+type TokenSafetyMessageProps = {
   warning: Warning
   tokenAddress: string
 }
 
-export default function TokenWarningMessage({ warning, tokenAddress }: TokenWarningMessageProps) {
-  const color = useTokenWarningColor(warning.level)
+export default function TokenSafetyMessage({ warning, tokenAddress }: TokenSafetyMessageProps) {
+  const backgroundColor = useTokenWarningColor(warning.level)
+  const textColor = useTokenWarningTextColor(warning.level)
   const { heading, description } = getWarningCopy(warning)
 
   return (
-    <Label color={color}>
+    <Label data-cy="token-safety-message" color={textColor} backgroundColor={backgroundColor}>
       <TitleRow>
-        {warning.canProceed ? <AlertTriangle size={'16px'} /> : <AlertOctagon size={'16px'} />}
+        {warning.canProceed ? <AlertTriangle size="16px" /> : <Slash size="16px" />}
         <Title marginLeft="7px">{warning.message}</Title>
       </TitleRow>
 
       <DetailsRow>
-        {heading && [heading, '. ']}
+        {heading}
+        {Boolean(heading) && ' '}
         {description}
+        {Boolean(description) && ' '}
         {tokenAddress && (
-          <ExternalLink href={TOKEN_SAFETY_ARTICLE}>
-            {' '}
+          <StyledLink href={TOKEN_SAFETY_ARTICLE}>
             <Trans>Learn more</Trans>
-          </ExternalLink>
+          </StyledLink>
         )}
       </DetailsRow>
     </Label>

@@ -1,13 +1,18 @@
+import { useWeb3React } from '@web3-react/core'
 import { ConnectionType } from 'connection'
+import useENSAvatar from 'hooks/useENSAvatar'
 import styled from 'styled-components/macro'
+import { flexColumnNoWrap } from 'theme/styles'
 
 import CoinbaseWalletIcon from '../../assets/images/coinbaseWalletIcon.svg'
-import FortmaticIcon from '../../assets/images/fortmaticIcon.png'
 import WalletConnectIcon from '../../assets/images/walletConnectIcon.svg'
+import sockImg from '../../assets/svg/socks.svg'
+import { useHasSocks } from '../../hooks/useSocksBalance'
 import Identicon from '../Identicon'
 
-const IconWrapper = styled.div<{ size?: number }>`
-  ${({ theme }) => theme.flexColumnNoWrap};
+export const IconWrapper = styled.div<{ size?: number }>`
+  position: relative;
+  ${flexColumnNoWrap};
   align-items: center;
   justify-content: center;
   margin-right: 8px;
@@ -16,27 +21,58 @@ const IconWrapper = styled.div<{ size?: number }>`
     height: ${({ size }) => (size ? size + 'px' : '32px')};
     width: ${({ size }) => (size ? size + 'px' : '32px')};
   }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     align-items: flex-end;
   `};
 `
 
-export default function StatusIcon({ connectionType }: { connectionType: ConnectionType }) {
-  let image
-  switch (connectionType) {
-    case ConnectionType.INJECTED:
-      image = <Identicon />
-      break
-    case ConnectionType.WALLET_CONNECT:
-      image = <img src={WalletConnectIcon} alt="WalletConnect" />
-      break
-    case ConnectionType.COINBASE_WALLET:
-      image = <img src={CoinbaseWalletIcon} alt="Coinbase Wallet" />
-      break
-    case ConnectionType.FORTMATIC:
-      image = <img src={FortmaticIcon} alt="Fortmatic" />
-      break
+const SockContainer = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  bottom: -4px;
+  right: -4px;
+`
+
+const SockImg = styled.img`
+  width: 16px;
+  height: 16px;
+`
+
+const Socks = () => {
+  return (
+    <SockContainer>
+      <SockImg src={sockImg} />
+    </SockContainer>
+  )
+}
+
+const useIcon = (connectionType: ConnectionType) => {
+  const { account } = useWeb3React()
+  const { avatar } = useENSAvatar(account ?? undefined)
+
+  if (avatar || connectionType === ConnectionType.INJECTED) {
+    return <Identicon />
+  } else if (connectionType === ConnectionType.WALLET_CONNECT) {
+    return <img src={WalletConnectIcon} alt="WalletConnect" />
+  } else if (connectionType === ConnectionType.COINBASE_WALLET) {
+    return <img src={CoinbaseWalletIcon} alt="Coinbase Wallet" />
   }
 
-  return <IconWrapper size={16}>{image}</IconWrapper>
+  return undefined
+}
+
+export default function StatusIcon({ connectionType, size }: { connectionType: ConnectionType; size?: number }) {
+  const hasSocks = useHasSocks()
+  const icon = useIcon(connectionType)
+
+  return (
+    <IconWrapper size={size ?? 16}>
+      {hasSocks && <Socks />}
+      {icon}
+    </IconWrapper>
+  )
 }

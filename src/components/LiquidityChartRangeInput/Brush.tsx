@@ -18,8 +18,8 @@ const HandleAccent = styled.path`
   pointer-events: none;
 
   stroke-width: 1.5;
-  stroke: ${({ theme }) => theme.deprecated_white};
-  opacity: 0.6;
+  stroke: ${({ theme }) => theme.white};
+  opacity: ${({ theme }) => theme.opacity.hover};
 `
 
 const LabelGroup = styled.g<{ visible: boolean }>`
@@ -28,13 +28,13 @@ const LabelGroup = styled.g<{ visible: boolean }>`
 `
 
 const TooltipBackground = styled.rect`
-  fill: ${({ theme }) => theme.deprecated_bg2};
+  fill: ${({ theme }) => theme.backgroundInteractive};
 `
 
 const Tooltip = styled.text`
   text-anchor: middle;
   font-size: 13px;
-  fill: ${({ theme }) => theme.deprecated_text1};
+  fill: ${({ theme }) => theme.textPrimary};
 `
 
 // flips the handles draggers when close to the container edges
@@ -213,7 +213,7 @@ export const Brush = ({
                   visible={showLabels || hovering}
                 >
                   <TooltipBackground y="0" x="-30" height="30" width="60" rx="8" />
-                  <Tooltip transform={`scale(-1, 1)`} y="15" dominantBaseline="middle">
+                  <Tooltip transform="scale(-1, 1)" y="15" dominantBaseline="middle">
                     {brushLabelValue('w', localBrushExtent[0])}
                   </Tooltip>
                 </LabelGroup>

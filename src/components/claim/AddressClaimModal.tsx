@@ -17,7 +17,6 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import AddressInputPanel from '../AddressInputPanel'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
-import Confetti from '../Confetti'
 import { Break, CardSection, DataCard } from '../earn/styled'
 import { CardBGImage, CardBGImageSmaller, CardNoise } from '../earn/styled'
 import Modal from '../Modal'
@@ -97,7 +96,6 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
-      <Confetti start={Boolean(isOpen && claimConfirmed && attempting)} />
       {!attempting && (
         <ContentWrapper gap="lg">
           <ModalUpper>
@@ -152,18 +150,18 @@ export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boole
           </RowBetween>
           <ConfirmedIcon>
             {!claimConfirmed ? (
-              <CustomLightSpinner src={Circle} alt="loader" size={'90px'} />
+              <CustomLightSpinner src={Circle} alt="loader" size="90px" />
             ) : (
               <UniTokenAnimated width="72px" src={tokenLogo} alt="UNI logo" />
             )}
           </ConfirmedIcon>
-          <AutoColumn gap="100px" justify={'center'}>
-            <AutoColumn gap="12px" justify={'center'}>
+          <AutoColumn gap="100px" justify="center">
+            <AutoColumn gap="md" justify="center">
               <ThemedText.DeprecatedLargeHeader fontWeight={600} color="black">
                 {claimConfirmed ? <Trans>Claimed</Trans> : <Trans>Claiming</Trans>}
               </ThemedText.DeprecatedLargeHeader>
               {!claimConfirmed && (
-                <Text fontSize={36} color={'#ff007a'} fontWeight={800}>
+                <Text fontSize={36} color="#ff007a" fontWeight={800}>
                   <Trans>{unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} UNI</Trans>
                 </Text>
               )}

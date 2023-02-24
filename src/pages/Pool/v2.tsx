@@ -1,15 +1,15 @@
 import { Trans } from '@lingui/macro'
+import { Trace } from '@uniswap/analytics'
+import { InterfacePageName } from '@uniswap/analytics-events'
 import { Pair } from '@uniswap/v2-sdk'
 import { useWeb3React } from '@web3-react/core'
-import { PageName } from 'components/AmplitudeAnalytics/constants'
-import { Trace } from 'components/AmplitudeAnalytics/Trace'
 import { UNSUPPORTED_V2POOL_CHAIN_IDS } from 'constants/chains'
 import JSBI from 'jsbi'
-import { useContext, useMemo } from 'react'
+import { useMemo } from 'react'
 import { ChevronsRight } from 'react-feather'
 import { Link } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { ThemeContext } from 'styled-components/macro'
+import styled, { useTheme } from 'styled-components/macro'
 
 import { ButtonOutlined, ButtonPrimary, ButtonSecondary } from '../../components/Button'
 import Card from '../../components/Card'
@@ -29,6 +29,10 @@ import { ExternalLink, HideSmall, ThemedText } from '../../theme'
 const PageWrapper = styled(AutoColumn)`
   max-width: 640px;
   width: 100%;
+
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
+    padding: 0px 8px;
+  `};
 `
 
 const VoteCard = styled(DataCard)`
@@ -37,7 +41,7 @@ const VoteCard = styled(DataCard)`
 `
 
 const TitleRow = styled(RowBetween)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     flex-wrap: wrap;
     gap: 12px;
     width: 100%;
@@ -47,7 +51,7 @@ const TitleRow = styled(RowBetween)`
 
 const ButtonRow = styled(RowFixed)`
   gap: 8px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     width: 100%;
     flex-direction: row-reverse;
     justify-content: space-between;
@@ -57,14 +61,14 @@ const ButtonRow = styled(RowFixed)`
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   width: fit-content;
   border-radius: 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     width: 48%;
   `};
 `
 
 const ResponsiveButtonSecondary = styled(ButtonSecondary)`
   width: fit-content;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     width: 48%;
   `};
 `
@@ -84,7 +88,7 @@ const Layer2Prompt = styled(EmptyProposals)`
 `
 
 export default function Pool() {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const { account, chainId } = useWeb3React()
   const unsupportedV2Network = chainId && UNSUPPORTED_V2POOL_CHAIN_IDS.includes(chainId)
 
@@ -136,7 +140,7 @@ export default function Pool() {
   })
 
   return (
-    <Trace page={PageName.POOL_PAGE} shouldLogImpression>
+    <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
       <>
         <PageWrapper>
           <VoteCard>
@@ -158,7 +162,7 @@ export default function Pool() {
                   </ThemedText.DeprecatedWhite>
                 </RowBetween>
                 <ExternalLink
-                  style={{ color: theme.deprecated_white, textDecoration: 'underline' }}
+                  style={{ color: theme.white, textDecoration: 'underline' }}
                   target="_blank"
                   href="https://docs.uniswap.org/protocol/V2/concepts/core-concepts/pools"
                 >
@@ -176,7 +180,7 @@ export default function Pool() {
             <AutoColumn gap="lg" justify="center">
               <AutoColumn gap="md" style={{ width: '100%' }}>
                 <Layer2Prompt>
-                  <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+                  <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                     <Trans>V2 Pool is not available on Layer 2. Switch to Layer 1 Ethereum.</Trans>
                   </ThemedText.DeprecatedBody>
                 </Layer2Prompt>
@@ -185,7 +189,7 @@ export default function Pool() {
           ) : (
             <AutoColumn gap="lg" justify="center">
               <AutoColumn gap="md" style={{ width: '100%' }}>
-                <TitleRow style={{ marginTop: '1rem' }} padding={'0'}>
+                <TitleRow style={{ marginTop: '1rem' }} padding="0">
                   <HideSmall>
                     <ThemedText.DeprecatedMediumHeader style={{ marginTop: '0.5rem', justifySelf: 'flex-start' }}>
                       <Trans>Your V2 liquidity</Trans>
@@ -210,13 +214,13 @@ export default function Pool() {
 
                 {!account ? (
                   <Card padding="40px">
-                    <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+                    <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                       <Trans>Connect to a wallet to view your liquidity.</Trans>
                     </ThemedText.DeprecatedBody>
                   </Card>
                 ) : v2IsLoading ? (
                   <EmptyProposals>
-                    <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+                    <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                       <Dots>
                         <Trans>Loading</Trans>
                       </Dots>
@@ -267,7 +271,7 @@ export default function Pool() {
                   </>
                 ) : (
                   <EmptyProposals>
-                    <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+                    <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                       <Trans>No liquidity found.</Trans>
                     </ThemedText.DeprecatedBody>
                   </EmptyProposals>

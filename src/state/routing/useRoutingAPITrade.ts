@@ -2,21 +2,16 @@ import { skipToken } from '@reduxjs/toolkit/query/react'
 import { Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core'
 import { IMetric, MetricLoggerUnit, setGlobalMetric } from '@uniswap/smart-order-router'
 import { sendTiming } from 'components/analytics'
+import { AVERAGE_L1_BLOCK_TIME } from 'constants/chainInfo'
 import { useStablecoinAmountFromFiatValue } from 'hooks/useStablecoinPrice'
 import { useRoutingAPIArguments } from 'lib/hooks/routing/useRoutingAPIArguments'
 import useIsValidBlock from 'lib/hooks/useIsValidBlock'
 import ms from 'ms.macro'
 import { useMemo } from 'react'
-import { useGetQuoteQuery } from 'state/routing/slice'
-import { useClientSideRouter } from 'state/user/hooks'
+import { RouterPreference, useGetQuoteQuery } from 'state/routing/slice'
 
 import { GetQuoteResult, InterfaceTrade, TradeState } from './types'
 import { computeRoutes, transformRoutesToTrade } from './utils'
-
-export enum RouterPreference {
-  CLIENT = 'client',
-  API = 'api',
-}
 
 /**
  * Returns the best trade by invoking the routing api or the smart order router on the client
@@ -26,9 +21,9 @@ export enum RouterPreference {
  */
 export function useRoutingAPITrade<TTradeType extends TradeType>(
   tradeType: TTradeType,
-  amountSpecified?: CurrencyAmount<Currency>,
-  otherCurrency?: Currency,
-  routerPreference?: RouterPreference
+  amountSpecified: CurrencyAmount<Currency> | undefined,
+  otherCurrency: Currency | undefined,
+  routerPreference: RouterPreference
 ): {
   state: TradeState
   trade: InterfaceTrade<Currency, Currency, TTradeType> | undefined
@@ -41,22 +36,17 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
     [amountSpecified, otherCurrency, tradeType]
   )
 
-  const [clientSideRouterStoredPreference] = useClientSideRouter()
-  const clientSideRouter = routerPreference
-    ? routerPreference === RouterPreference.CLIENT
-    : clientSideRouterStoredPreference
-
   const queryArgs = useRoutingAPIArguments({
     tokenIn: currencyIn,
     tokenOut: currencyOut,
     amount: amountSpecified,
     tradeType,
-    useClientSideRouter: clientSideRouter,
+    routerPreference,
   })
 
   const { isLoading, isError, data, currentData } = useGetQuoteQuery(queryArgs ?? skipToken, {
-    pollingInterval: ms`15s`,
-    refetchOnFocus: true,
+    // Price-fetching is informational and costly, so it's done less frequently.
+    pollingInterval: routerPreference === RouterPreference.PRICE ? ms`2m` : AVERAGE_L1_BLOCK_TIME,
   })
 
   const quoteResult: GetQuoteResult | undefined = useIsValidBlock(Number(data?.blockNumber) || 0) ? data : undefined
@@ -106,7 +96,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
     }
 
     try {
-      const trade = transformRoutesToTrade(route, tradeType, gasUseEstimateUSD)
+      const trade = transformRoutesToTrade(route, tradeType, quoteResult?.blockNumber, gasUseEstimateUSD)
       return {
         // always return VALID regardless of isFetching status
         state: isSyncing ? TradeState.SYNCING : TradeState.VALID,

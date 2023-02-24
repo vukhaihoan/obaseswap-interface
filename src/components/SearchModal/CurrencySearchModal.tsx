@@ -1,14 +1,12 @@
 import { Currency, Token } from '@uniswap/sdk-core'
-import { TokenList } from '@uniswap/token-lists'
 import TokenSafety from 'components/TokenSafety'
-import usePrevious from 'hooks/usePrevious'
-import { useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
+import { useUserAddedTokens } from 'state/user/hooks'
 
 import useLast from '../../hooks/useLast'
+import { useWindowSize } from '../../hooks/useWindowSize'
 import Modal from '../Modal'
 import { CurrencySearch } from './CurrencySearch'
-import { ImportList } from './ImportList'
-import Manage from './Manage'
 
 interface CurrencySearchModalProps {
   isOpen: boolean
@@ -19,16 +17,16 @@ interface CurrencySearchModalProps {
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
   disableNonToken?: boolean
+  onlyShowCurrenciesWithBalance?: boolean
 }
 
-export enum CurrencyModalView {
+enum CurrencyModalView {
   search,
-  manage,
   importToken,
-  importList,
+  tokenSafety,
 }
 
-export default function CurrencySearchModal({
+export default memo(function CurrencySearchModal({
   isOpen,
   onDismiss,
   onCurrencySelect,
@@ -37,9 +35,11 @@ export default function CurrencySearchModal({
   showCommonBases = false,
   showCurrencyAmount = true,
   disableNonToken = false,
+  onlyShowCurrenciesWithBalance = false,
 }: CurrencySearchModalProps) {
-  const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.manage)
+  const [modalView, setModalView] = useState<CurrencyModalView>(CurrencyModalView.search)
   const lastOpen = useLast(isOpen)
+  const userAddedTokens = useUserAddedTokens()
 
   useEffect(() => {
     if (isOpen && !lastOpen) {
@@ -47,36 +47,35 @@ export default function CurrencySearchModal({
     }
   }, [isOpen, lastOpen])
 
+  const showTokenSafetySpeedbump = (token: Token) => {
+    setWarningToken(token)
+    setModalView(CurrencyModalView.tokenSafety)
+  }
+
   const handleCurrencySelect = useCallback(
-    (currency: Currency) => {
-      onCurrencySelect(currency)
-      onDismiss()
+    (currency: Currency, hasWarning?: boolean) => {
+      if (hasWarning && currency.isToken && !userAddedTokens.find((token) => token.equals(currency))) {
+        showTokenSafetySpeedbump(currency)
+      } else {
+        onCurrencySelect(currency)
+        onDismiss()
+      }
     },
-    [onDismiss, onCurrencySelect]
+    [onDismiss, onCurrencySelect, userAddedTokens]
   )
+  // used for token safety
+  const [warningToken, setWarningToken] = useState<Token | undefined>()
 
-  // for token import view
-  const prevView = usePrevious(modalView)
-
-  // used for import token flow
-  const [importToken, setImportToken] = useState<Token | undefined>()
-
-  // used for import list
-  const [importList, setImportList] = useState<TokenList | undefined>()
-  const [listURL, setListUrl] = useState<string | undefined>()
-
-  const showImportView = useCallback(() => setModalView(CurrencyModalView.importToken), [setModalView])
-  const showManageView = useCallback(() => setModalView(CurrencyModalView.manage), [setModalView])
-  const handleBackImport = useCallback(
-    () => setModalView(prevView && prevView !== CurrencyModalView.importToken ? prevView : CurrencyModalView.search),
-    [setModalView, prevView]
-  )
-
+  const { height: windowHeight } = useWindowSize()
   // change min height if not searching
-  let minHeight: number | undefined = 80
+  let modalHeight: number | undefined = 80
   let content = null
   switch (modalView) {
     case CurrencyModalView.search:
+      if (windowHeight) {
+        // Converts pixel units to vh for Modal component
+        modalHeight = Math.min(Math.round((680 / windowHeight) * 100), 80)
+      }
       content = (
         <CurrencySearch
           isOpen={isOpen}
@@ -87,45 +86,27 @@ export default function CurrencySearchModal({
           showCommonBases={showCommonBases}
           showCurrencyAmount={showCurrencyAmount}
           disableNonToken={disableNonToken}
-          showImportView={showImportView}
-          setImportToken={setImportToken}
-          showManageView={showManageView}
+          onlyShowCurrenciesWithBalance={onlyShowCurrenciesWithBalance}
         />
       )
       break
-    case CurrencyModalView.importToken:
-      if (importToken) {
-        minHeight = undefined
+    case CurrencyModalView.tokenSafety:
+      modalHeight = undefined
+      if (warningToken) {
         content = (
           <TokenSafety
-            tokenAddress={importToken.address}
-            onContinue={() => handleCurrencySelect(importToken)}
-            onCancel={handleBackImport}
+            tokenAddress={warningToken.address}
+            onContinue={() => handleCurrencySelect(warningToken)}
+            onCancel={() => setModalView(CurrencyModalView.search)}
+            showCancel={true}
           />
         )
       }
       break
-    case CurrencyModalView.importList:
-      minHeight = 40
-      if (importList && listURL) {
-        content = <ImportList list={importList} listURL={listURL} onDismiss={onDismiss} setModalView={setModalView} />
-      }
-      break
-    case CurrencyModalView.manage:
-      content = (
-        <Manage
-          onDismiss={onDismiss}
-          setModalView={setModalView}
-          setImportToken={setImportToken}
-          setImportList={setImportList}
-          setListUrl={setListUrl}
-        />
-      )
-      break
   }
   return (
-    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={80} minHeight={minHeight}>
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxHeight={modalHeight} minHeight={modalHeight}>
       {content}
     </Modal>
   )
-}
+})

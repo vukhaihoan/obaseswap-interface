@@ -1,9 +1,9 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
+import { Trace } from '@uniswap/analytics'
+import { InterfacePageName } from '@uniswap/analytics-events'
 import { CurrencyAmount, Fraction, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { PageName } from 'components/AmplitudeAnalytics/constants'
-import { Trace } from 'components/AmplitudeAnalytics/Trace'
 import ExecuteModal from 'components/vote/ExecuteModal'
 import QueueModal from 'components/vote/QueueModal'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -18,7 +18,7 @@ import { useParams } from 'react-router-dom'
 import styled from 'styled-components/macro'
 
 import { ButtonPrimary } from '../../components/Button'
-import { GreyCard } from '../../components/Card'
+import { GrayCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import { CardSection, DataCard } from '../../components/earn/styled'
 import { RowBetween, RowFixed } from '../../components/Row'
@@ -56,11 +56,20 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ProposalStatus } from './styled'
 
 const PageWrapper = styled(AutoColumn)`
+  padding-top: 68px;
   width: 100%;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 48px 8px 0px;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding-top: 20px;
+  }
 `
 
 const ProposalInfo = styled(AutoColumn)`
-  background: ${({ theme }) => theme.deprecated_bg0};
+  background: ${({ theme }) => theme.backgroundSurface};
   border-radius: 12px;
   padding: 1.5rem;
   position: relative;
@@ -73,10 +82,10 @@ const ArrowWrapper = styled(StyledInternalLink)`
   align-items: center;
   gap: 8px;
   height: 24px;
-  color: ${({ theme }) => theme.deprecated_text1};
+  color: ${({ theme }) => theme.textPrimary};
 
   a {
-    color: ${({ theme }) => theme.deprecated_text1};
+    color: ${({ theme }) => theme.textPrimary};
     text-decoration: none;
   }
   :hover {
@@ -110,7 +119,7 @@ const ProgressWrapper = styled.div`
 const Progress = styled.div<{ status: 'for' | 'against'; percentageString?: string }>`
   height: 4px;
   border-radius: 4px;
-  background-color: ${({ theme, status }) => (status === 'for' ? theme.deprecated_green1 : theme.deprecated_red1)};
+  background-color: ${({ theme, status }) => (status === 'for' ? theme.accentSuccess : theme.accentFailure)};
   width: ${({ percentageString }) => percentageString ?? '0%'};
 `
 
@@ -120,7 +129,7 @@ const MarkDownWrapper = styled.div`
 `
 
 const WrapSmall = styled(RowBetween)`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     align-items: flex-start;
     flex-direction: column;
   `};
@@ -257,8 +266,12 @@ export default function VotePage() {
     return <span>{content}</span>
   }
 
+  function MarkdownImage({ ...rest }) {
+    return <img {...rest} style={{ width: '100%', height: '100$', objectFit: 'cover' }} alt="" />
+  }
+
   return (
-    <Trace page={PageName.VOTE_PAGE} shouldLogImpression>
+    <Trace page={InterfacePageName.VOTE_PAGE} shouldLogImpression>
       <>
         <PageWrapper gap="lg" justify="center">
           <VoteModal
@@ -305,7 +318,7 @@ export default function VotePage() {
                 </ThemedText.DeprecatedMain>
               </RowBetween>
               {proposalData && proposalData.status === ProposalState.ACTIVE && !showVotingButtons && (
-                <GreyCard>
+                <GrayCard>
                   <ThemedText.DeprecatedBlack>
                     <Trans>
                       Only UNI votes that were self delegated or delegated to another address before block{' '}
@@ -320,7 +333,7 @@ export default function VotePage() {
                       </span>
                     )}
                   </ThemedText.DeprecatedBlack>
-                </GreyCard>
+                </GrayCard>
               )}
             </AutoColumn>
             {showVotingButtons && (
@@ -406,7 +419,7 @@ export default function VotePage() {
                   </AutoColumn>
                   <ProgressWrapper>
                     <Progress
-                      status={'for'}
+                      status="for"
                       percentageString={
                         proposalData?.forCount.greaterThan(0) ? `${forPercentage?.toFixed(0) ?? 0}%` : '0%'
                       }
@@ -430,7 +443,7 @@ export default function VotePage() {
                   </AutoColumn>
                   <ProgressWrapper>
                     <Progress
-                      status={'against'}
+                      status="against"
                       percentageString={
                         proposalData?.againstCount?.greaterThan(0) ? `${againstPercentage?.toFixed(0) ?? 0}%` : '0%'
                       }
@@ -465,7 +478,12 @@ export default function VotePage() {
                 <Trans>Description</Trans>
               </ThemedText.DeprecatedMediumHeader>
               <MarkDownWrapper>
-                <ReactMarkdown source={proposalData?.description} />
+                <ReactMarkdown
+                  source={proposalData?.description}
+                  renderers={{
+                    image: MarkdownImage,
+                  }}
+                />
               </MarkDownWrapper>
             </AutoColumn>
             <AutoColumn gap="md">

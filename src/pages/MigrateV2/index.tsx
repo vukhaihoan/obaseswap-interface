@@ -8,9 +8,9 @@ import MigrateSushiPositionCard from 'components/PositionCard/Sushi'
 import MigrateV2PositionCard from 'components/PositionCard/V2'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { PairState, useV2Pairs } from 'hooks/useV2Pairs'
-import { ReactNode, useContext, useMemo } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { Text } from 'rebass'
-import { ThemeContext } from 'styled-components/macro'
+import { useTheme } from 'styled-components/macro'
 
 import { LightCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
@@ -51,7 +51,7 @@ function toSushiLiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
 }
 
 export default function MigrateV2() {
-  const theme = useContext(ThemeContext)
+  const theme = useTheme()
   const { account, chainId } = useWeb3React()
 
   const v2FactoryAddress = chainId ? V2_FACTORY_ADDRESSES[chainId] : undefined
@@ -116,7 +116,7 @@ export default function MigrateV2() {
       <BodyWrapper style={{ padding: 24 }}>
         <AutoColumn gap="16px">
           <AutoRow style={{ alignItems: 'center', justifyContent: 'space-between' }} gap="8px">
-            <BackArrow to="/pool/v2" />
+            <BackArrow to="/pool" />
             <ThemedText.DeprecatedMediumHeader>
               <Trans>Migrate V2 Liquidity</Trans>
             </ThemedText.DeprecatedMediumHeader>
@@ -134,13 +134,13 @@ export default function MigrateV2() {
 
           {!account ? (
             <LightCard padding="40px">
-              <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+              <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                 <Trans>Connect to a wallet to view your V2 liquidity.</Trans>
               </ThemedText.DeprecatedBody>
             </LightCard>
           ) : v2IsLoading ? (
             <LightCard padding="40px">
-              <ThemedText.DeprecatedBody color={theme.deprecated_text3} textAlign="center">
+              <ThemedText.DeprecatedBody color={theme.textTertiary} textAlign="center">
                 <Dots>
                   <Trans>Loading</Trans>
                 </Dots>
@@ -169,11 +169,11 @@ export default function MigrateV2() {
             <EmptyState message={<Trans>No V2 Liquidity found.</Trans>} />
           )}
 
-          <AutoColumn justify={'center'} gap="md">
+          <AutoColumn justify="center" gap="md">
             <Text textAlign="center" fontSize={14} style={{ padding: '.5rem 0 .5rem 0' }}>
               <Trans>
                 Don’t see one of your v2 positions?{' '}
-                <StyledInternalLink id="import-pool-link" to={'/find?origin=/migrate/v2'}>
+                <StyledInternalLink id="import-pool-link" to="/pool/v2/find">
                   Import it.
                 </StyledInternalLink>
               </Trans>
