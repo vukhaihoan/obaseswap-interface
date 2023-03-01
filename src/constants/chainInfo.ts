@@ -116,7 +116,7 @@ const CHAIN_INFO: ChainInfoMap = {
     color: colorsDark.chain_10,
     backgroundColor: colorsDark.chain_10_background,
   },
-  [SupportedChainId.OPTIMISTIC_KOVAN]: {
+  [SupportedChainId.OPTIMISTIC_GOERLI]: {
     networkType: NetworkType.L2,
     blockWaitMsBeforeWarning: ms`25m`,
     bridge: 'https://app.optimism.io/bridge',
@@ -124,11 +124,11 @@ const CHAIN_INFO: ChainInfoMap = {
     docs: 'https://optimism.io/',
     explorer: 'https://optimistic.etherscan.io/',
     infoLink: 'https://info.uniswap.org/#/optimism/',
-    label: 'Optimistic Kovan',
+    label: 'Optimistic Goerli',
     logoUrl: optimismLogoUrl,
     statusPage: 'https://optimism.io/status',
     helpCenterUrl: 'https://help.uniswap.org/en/collections/3137778-uniswap-on-optimistic-ethereum-oξ',
-    nativeCurrency: { name: 'Optimistic Kovan Ether', symbol: 'kovOpETH', decimals: 18 },
+    nativeCurrency: { name: 'Optimistic Goerli Ether', symbol: 'kovOpETH', decimals: 18 },
     color: colorsDark.chain_69,
   },
   [SupportedChainId.ARBITRUM_ONE]: {

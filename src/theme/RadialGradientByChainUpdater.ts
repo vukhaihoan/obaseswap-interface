@@ -44,7 +44,7 @@ export default function RadialGradientByChainUpdater(): null {
         backgroundRadialGradientElement.style.background = darkMode ? arbitrumDarkGradient : arbitrumLightGradient
         break
       case SupportedChainId.OPTIMISM:
-      case SupportedChainId.OPTIMISTIC_KOVAN:
+      case SupportedChainId.OPTIMISTIC_GOERLI:
         setBackground(backgroundResetStyles)
         const optimismLightGradient = 'radial-gradient(150% 100% at 50% 0%, #FFFBF2 2%, #FFF4F9 53%, #FFFFFF 100%)'
         const optimismDarkGradient = 'radial-gradient(150% 100% at 50% 0%, #3E2E38 2%, #2C1F2D 53%, #1F2128 100%)'

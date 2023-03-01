@@ -46,8 +46,8 @@ export const USDC_OPTIMISM = new Token(
   'USDC',
   'USD//C'
 )
-export const USDC_OPTIMISTIC_KOVAN = new Token(
-  SupportedChainId.OPTIMISTIC_KOVAN,
+export const USDC_OPTIMISTIC_GOERLI = new Token(
+  SupportedChainId.OPTIMISTIC_GOERLI,
   '0x3b8e53b3ab8e01fb57d0c9e893bc4d655aa67d84',
   6,
   'USDC',
@@ -128,7 +128,7 @@ export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.ARBITRUM_ONE]: USDC_ARBITRUM,
   [SupportedChainId.OPTIMISM]: USDC_OPTIMISM,
   [SupportedChainId.ARBITRUM_RINKEBY]: USDC_ARBITRUM_RINKEBY,
-  [SupportedChainId.OPTIMISTIC_KOVAN]: USDC_OPTIMISTIC_KOVAN,
+  [SupportedChainId.OPTIMISTIC_GOERLI]: USDC_OPTIMISTIC_GOERLI,
   [SupportedChainId.POLYGON]: USDC_POLYGON,
   [SupportedChainId.POLYGON_MUMBAI]: USDC_POLYGON_MUMBAI,
   [SupportedChainId.CELO]: PORTAL_USDC_CELO,
@@ -353,8 +353,8 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WETH',
     'Wrapped Ether'
   ),
-  [SupportedChainId.OPTIMISTIC_KOVAN]: new Token(
-    SupportedChainId.OPTIMISTIC_KOVAN,
+  [SupportedChainId.OPTIMISTIC_GOERLI]: new Token(
+    SupportedChainId.OPTIMISTIC_GOERLI,
     '0x4200000000000000000000000000000000000006',
     18,
     'WETH',
@@ -461,7 +461,7 @@ export const TOKEN_SHORTHANDS: { [shorthand: string]: { [chainId in SupportedCha
     [SupportedChainId.ARBITRUM_ONE]: USDC_ARBITRUM.address,
     [SupportedChainId.OPTIMISM]: USDC_OPTIMISM.address,
     [SupportedChainId.ARBITRUM_RINKEBY]: USDC_ARBITRUM_RINKEBY.address,
-    [SupportedChainId.OPTIMISTIC_KOVAN]: USDC_OPTIMISTIC_KOVAN.address,
+    [SupportedChainId.OPTIMISTIC_GOERLI]: USDC_OPTIMISTIC_GOERLI.address,
     [SupportedChainId.POLYGON]: USDC_POLYGON.address,
     [SupportedChainId.POLYGON_MUMBAI]: USDC_POLYGON_MUMBAI.address,
     [SupportedChainId.CELO]: PORTAL_USDC_CELO.address,
