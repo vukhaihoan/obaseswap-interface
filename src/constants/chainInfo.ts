@@ -1,5 +1,6 @@
 import ethereumLogoUrl from 'assets/images/ethereum-logo.png'
 import arbitrumLogoUrl from 'assets/svg/arbitrum_logo.svg'
+import baseLogoUrl from 'assets/svg/base_logo.svg'
 import celoLogo from 'assets/svg/celo_logo.svg'
 import optimismLogoUrl from 'assets/svg/optimistic_ethereum.svg'
 import polygonMaticLogo from 'assets/svg/polygon-matic-logo.svg'
@@ -7,7 +8,7 @@ import ms from 'ms.macro'
 import { colorsDark } from 'theme/colors'
 
 import { SupportedChainId, SupportedL1ChainId, SupportedL2ChainId } from './chains'
-import { ARBITRUM_LIST, CELO_LIST, OPTIMISM_LIST } from './lists'
+import { ARBITRUM_LIST, BASE_GOERLI_LIST, CELO_LIST, OPTIMISM_LIST } from './lists'
 
 export enum NetworkType {
   L1,
@@ -130,6 +131,21 @@ const CHAIN_INFO: ChainInfoMap = {
     helpCenterUrl: 'https://help.uniswap.org/en/collections/3137778-uniswap-on-optimistic-ethereum-oξ',
     nativeCurrency: { name: 'Optimistic Kovan Ether', symbol: 'kovOpETH', decimals: 18 },
     color: colorsDark.chain_69,
+  },
+  [SupportedChainId.BASE_GOERLI]: {
+    networkType: NetworkType.L2,
+    blockWaitMsBeforeWarning: ms`25m`,
+    bridge: 'https://bridge.base.org/',
+    defaultListUrl: BASE_GOERLI_LIST,
+    docs: 'https://docs.base.org/',
+    explorer: 'https://goerli.basescan.org/',
+    infoLink: 'https://info.uniswap.org/#/base/', // TODO: add base info
+    label: 'Base Goerli',
+    logoUrl: baseLogoUrl,
+    helpCenterUrl: 'https://help.uniswap.org/en/collections/3137778-uniswap-on-optimistic-ethereum-oξ', // TODO: add base help center
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    color: colorsDark.chain_84531,
+    backgroundColor: colorsDark.chain_84531_background,
   },
   [SupportedChainId.ARBITRUM_ONE]: {
     networkType: NetworkType.L2,

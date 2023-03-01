@@ -62,6 +62,16 @@ export default function DowntimeWarning() {
           </Trans>
         </Wrapper>
       )
+    case SupportedChainId.BASE_GOERLI:
+      return (
+        <Wrapper>
+          <Trans>
+            Base is in Beta and may experience downtime. Base expects planned downtime to upgrade the network in the
+            near future. During downtime, your position will not earn fees and you will be unable to remove liquidity.{' '}
+            <ReadMoreLink href="https://docs.base.org">Read more.</ReadMoreLink>
+          </Trans>
+        </Wrapper>
+      )
     case SupportedChainId.ARBITRUM_ONE:
     case SupportedChainId.ARBITRUM_RINKEBY:
       return (

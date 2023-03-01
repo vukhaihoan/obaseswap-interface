@@ -114,6 +114,7 @@ const Logo = styled.img`
 `
 const NetworkLabel = styled.div`
   flex: 1 1 auto;
+  white-space: nowrap;
   cursor: default;
 `
 const SelectorLabel = styled(NetworkLabel)`
@@ -186,6 +187,8 @@ const BridgeLabel = ({ chainId }: { chainId: SupportedChainId }) => {
     case SupportedChainId.OPTIMISM:
     case SupportedChainId.OPTIMISTIC_KOVAN:
       return <Trans>Optimism Bridge</Trans>
+    case SupportedChainId.BASE_GOERLI:
+      return <Trans>Base Goerli Bridge</Trans>
     case SupportedChainId.POLYGON:
     case SupportedChainId.POLYGON_MUMBAI:
       return <Trans>Polygon Bridge</Trans>
@@ -204,6 +207,8 @@ const ExplorerLabel = ({ chainId }: { chainId: SupportedChainId }) => {
     case SupportedChainId.OPTIMISM:
     case SupportedChainId.OPTIMISTIC_KOVAN:
       return <Trans>Optimistic Etherscan</Trans>
+    case SupportedChainId.BASE_GOERLI:
+      return <Trans>Goerli Basescan</Trans>
     case SupportedChainId.POLYGON:
     case SupportedChainId.POLYGON_MUMBAI:
       return <Trans>Polygonscan</Trans>
@@ -299,6 +304,7 @@ const NETWORK_SELECTOR_CHAINS = [
   SupportedChainId.MAINNET,
   SupportedChainId.POLYGON,
   SupportedChainId.OPTIMISM,
+  SupportedChainId.BASE_GOERLI,
   SupportedChainId.ARBITRUM_ONE,
   SupportedChainId.CELO,
 ]

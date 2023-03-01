@@ -211,6 +211,7 @@ export interface Palette {
   chain_4: Color
   chain_5: Color
   chain_10: Color
+  chain_84531: Color
   chain_137: Color
   chain_42: Color
   chain_69: Color
@@ -220,6 +221,7 @@ export interface Palette {
   chain_137_background: Color
   chain_10_background: Color
   chain_42161_background: Color
+  chain_84531_background: Color
 
   flyoutDropShadow: Color
 }
@@ -268,6 +270,7 @@ export const colorsLight: Palette = {
   chain_4: colors.pink400,
   chain_5: colors.green400,
   chain_10: colors.networkOptimism,
+  chain_84531: colors.networkPolygon,
   chain_137: colors.networkPolygon,
   chain_42: colors.networkArbitrum,
   chain_69: colors.networkOptimism,
@@ -277,6 +280,7 @@ export const colorsLight: Palette = {
   chain_137_background: colors.purple900,
   chain_10_background: colors.red900,
   chain_42161_background: colors.blue900,
+  chain_84531_background: colors.blue900,
 
   flyoutDropShadow: colors.black,
 }
@@ -325,6 +329,7 @@ export const colorsDark: Palette = {
   chain_5: colors.green400,
   chain_10: colors.networkOptimism,
   chain_137: colors.networkPolygon,
+  chain_84531: colors.networkPolygon,
   chain_42: colors.networkArbitrum,
   chain_69: colors.networkEthereum,
   chain_42161: colors.networkEthereum,
@@ -333,6 +338,7 @@ export const colorsDark: Palette = {
   chain_137_background: colors.purple900,
   chain_10_background: colors.red900,
   chain_42161_background: colors.blue900,
+  chain_84531_background: colors.blue900,
 
   flyoutDropShadow: colors.black,
 }

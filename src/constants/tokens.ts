@@ -46,6 +46,13 @@ export const USDC_OPTIMISM = new Token(
   'USDC',
   'USD//C'
 )
+export const USDC_BASE_GOERLI = new Token(
+  SupportedChainId.BASE_GOERLI,
+  '0xe9C5eA9B94538019911801961857450F5b7045Bd',
+  6,
+  'USDC',
+  'USD//C'
+)
 export const USDC_OPTIMISTIC_KOVAN = new Token(
   SupportedChainId.OPTIMISTIC_KOVAN,
   '0x3b8e53b3ab8e01fb57d0c9e893bc4d655aa67d84',
@@ -123,10 +130,18 @@ export const DAI_OPTIMISM = new Token(
   'DAI',
   'Dai stable coin'
 )
+export const DAI_BASE_GOERLI = new Token(
+  SupportedChainId.BASE_GOERLI,
+  '0x1654A0e9AD8823aA62c774667198871874a6D47c',
+  18,
+  'DAI',
+  'Dai stable coin'
+)
 export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.MAINNET]: USDC_MAINNET,
   [SupportedChainId.ARBITRUM_ONE]: USDC_ARBITRUM,
   [SupportedChainId.OPTIMISM]: USDC_OPTIMISM,
+  [SupportedChainId.BASE_GOERLI]: USDC_BASE_GOERLI,
   [SupportedChainId.ARBITRUM_RINKEBY]: USDC_ARBITRUM_RINKEBY,
   [SupportedChainId.OPTIMISTIC_KOVAN]: USDC_OPTIMISTIC_KOVAN,
   [SupportedChainId.POLYGON]: USDC_POLYGON,
@@ -180,6 +195,13 @@ export const USDT_OPTIMISM = new Token(
   'USDT',
   'Tether USD'
 )
+export const USDT_BASE_GOERLI = new Token(
+  SupportedChainId.BASE_GOERLI,
+  '0xdCe539e053858943cd0E9AC5179fdd5A3ffC10dF',
+  6,
+  'USDT',
+  'Tether USD'
+)
 export const WBTC = new Token(
   SupportedChainId.MAINNET,
   '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
@@ -201,6 +223,15 @@ export const WBTC_OPTIMISM = new Token(
   'WBTC',
   'Wrapped BTC'
 )
+
+export const WBTC_BASE_GOERLI = new Token(
+  SupportedChainId.BASE_GOERLI,
+  '0x5703b05aFD222038A77F771f4F0C1b70b7C72C07',
+  8,
+  'WBTC',
+  'Wrapped BTC'
+)
+
 export const FEI = new Token(
   SupportedChainId.MAINNET,
   '0x956F47F50A910163D8BF957Cf5846D573E7f87CA',
@@ -353,6 +384,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WETH',
     'Wrapped Ether'
   ),
+  [SupportedChainId.BASE_GOERLI]: new Token(
+    SupportedChainId.BASE_GOERLI,
+    '0xF5F8057EC0EBfB4E6E84ACB5b95D2D188cc66Dc7',
+    18,
+    'WETH',
+    'Wrapped Ether'
+  ),
   [SupportedChainId.OPTIMISTIC_KOVAN]: new Token(
     SupportedChainId.OPTIMISTIC_KOVAN,
     '0x4200000000000000000000000000000000000006',
@@ -392,6 +430,10 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
 
 export function isCelo(chainId: number): chainId is SupportedChainId.CELO | SupportedChainId.CELO_ALFAJORES {
   return chainId === SupportedChainId.CELO_ALFAJORES || chainId === SupportedChainId.CELO
+}
+
+export function isBaseGoerli(chainId: number): chainId is SupportedChainId.BASE_GOERLI {
+  return chainId === SupportedChainId.BASE_GOERLI
 }
 
 function getCeloNativeCurrency(chainId: number) {
@@ -460,6 +502,7 @@ export const TOKEN_SHORTHANDS: { [shorthand: string]: { [chainId in SupportedCha
     [SupportedChainId.MAINNET]: USDC_MAINNET.address,
     [SupportedChainId.ARBITRUM_ONE]: USDC_ARBITRUM.address,
     [SupportedChainId.OPTIMISM]: USDC_OPTIMISM.address,
+    [SupportedChainId.BASE_GOERLI]: USDC_BASE_GOERLI.address,
     [SupportedChainId.ARBITRUM_RINKEBY]: USDC_ARBITRUM_RINKEBY.address,
     [SupportedChainId.OPTIMISTIC_KOVAN]: USDC_OPTIMISTIC_KOVAN.address,
     [SupportedChainId.POLYGON]: USDC_POLYGON.address,

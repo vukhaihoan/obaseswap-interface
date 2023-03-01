@@ -16,6 +16,7 @@ const NETWORKS = [
   SupportedChainId.ARBITRUM_ONE,
   SupportedChainId.POLYGON,
   SupportedChainId.OPTIMISM,
+  SupportedChainId.BASE_GOERLI,
 ]
 
 const InternalMenuItem = styled.div`

@@ -1,7 +1,7 @@
 import { getVersionUpgrade, minVersionBump, VersionUpgrade } from '@uniswap/token-lists'
 import { useWeb3React } from '@web3-react/core'
 import { SupportedChainId } from 'constants/chains'
-import { ARBITRUM_LIST, CELO_LIST, OPTIMISM_LIST, UNSUPPORTED_LIST_URLS } from 'constants/lists'
+import { ARBITRUM_LIST, BASE_GOERLI_LIST, CELO_LIST, OPTIMISM_LIST, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import useInterval from 'lib/hooks/useInterval'
 import { useCallback, useEffect } from 'react'
 import { useAppDispatch } from 'state/hooks'
@@ -33,6 +33,9 @@ export default function Updater(): null {
   useEffect(() => {
     if (chainId && [SupportedChainId.OPTIMISM, SupportedChainId.OPTIMISTIC_KOVAN].includes(chainId)) {
       dispatch(enableList(OPTIMISM_LIST))
+    }
+    if (chainId && [SupportedChainId.BASE_GOERLI].includes(chainId)) {
+      dispatch(enableList(BASE_GOERLI_LIST))
     }
     if (chainId && [SupportedChainId.ARBITRUM_ONE, SupportedChainId.ARBITRUM_RINKEBY].includes(chainId)) {
       dispatch(enableList(ARBITRUM_LIST))

@@ -12,6 +12,8 @@ const SET_LIST = 'https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlis
 const WRAPPED_LIST = 'wrapped.tokensoft.eth'
 
 export const OPTIMISM_LIST = 'https://static.optimism.io/optimism.tokenlist.json'
+export const BASE_GOERLI_LIST = 'https://static.optimism.io/optimism.tokenlist.json'
+// export const BASE_GOERLI_LIST = 'https://vukhaihoan.github.io/token_list.json' // TODO: update to real token list
 export const ARBITRUM_LIST = 'https://bridge.arbitrum.io/token-list-42161.json'
 export const CELO_LIST = 'https://celo-org.github.io/celo-token-list/celo.tokenlist.json'
 
@@ -33,6 +35,7 @@ const DEFAULT_LIST_OF_LISTS_TO_DISPLAY: string[] = [
   ROLL_LIST,
   ARBITRUM_LIST,
   OPTIMISM_LIST,
+  BASE_GOERLI_LIST,
   CELO_LIST,
 ]
 
