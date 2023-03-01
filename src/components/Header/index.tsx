@@ -23,8 +23,8 @@ import Menu from '../Menu'
 import Row from '../Row'
 import { Dots } from '../swap/styleds'
 import Web3Status from '../Web3Status'
+import { ChainSelector } from './ChainSelector'
 import HolidayOrnament from './HolidayOrnament'
-import NetworkSelector from './NetworkSelector'
 
 const HeaderFrame = styled.div<{ showBackground: boolean }>`
   display: grid;
@@ -318,7 +318,7 @@ export default function Header() {
 
       <HeaderControls>
         <HeaderElement>
-          <NetworkSelector />
+          <ChainSelector />
         </HeaderElement>
         <HeaderElement>
           {availableClaim && !showClaimPopup && (
