@@ -386,7 +386,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
   ),
   [SupportedChainId.BASE_GOERLI]: new Token(
     SupportedChainId.BASE_GOERLI,
-    '0xF5F8057EC0EBfB4E6E84ACB5b95D2D188cc66Dc7',
+    '0x4200000000000000000000000000000000000006',
     18,
     'WETH',
     'Wrapped Ether'
